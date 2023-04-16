@@ -9,10 +9,17 @@ const generateToken = (user) => {
 };
 
 const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization'];
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  console.log('Auth Header:', authHeader);
+  console.log('Token:', token);
+
   if (!token) return res.status(403).json({ error: 'No token provided' });
 
   jwt.verify(token, secret, (err, user) => {
+    console.log('Verify error:', err);
+    console.log('User:', user);
     if (err) return res.status(403).json({ error: 'Invalid token' });
     req.user = user;
     next();

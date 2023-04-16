@@ -83,13 +83,20 @@ router.post('/posts', authenticateToken, async (req, res) => {
 });
 router.get('/posts', async (req, res) => {
     try {
-        const posts = await db.query('SELECT * FROM posts ORDER BY created_at DESC');
-
-        res.status(200).json(posts.rows);
+      const posts = await db.query(`
+        SELECT p.id, p.content, p.created_at, p.user_id, u.username as user_username
+        FROM posts p
+        JOIN users u ON p.user_id = u.id
+        ORDER BY p.created_at DESC
+      `);
+  
+      res.status(200).json(posts.rows);
     } catch (err) {
-        res.status(500).json({ error: 'Error fetching posts' });
+      console.error(err);
+      res.status(500).json({ error: 'Error fetching posts' });
     }
-});
+  });
+  
 
 router.post('/posts/:postId/likes', authenticateToken, async (req, res) => {
     const { postId } = req.params;
